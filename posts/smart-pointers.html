@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Pointers Are Not Magic — bits & bytes</title>
+  <meta name="description" content="Everyone says just use unique_ptr but few understand what the compiler actually generates. We disassemble the output and find out." />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>⚙</text></svg>" />
+</head>
+<body>
+
+  <!-- ── Nav ─────────────────────────────────────────────── -->
+  <nav>
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <span class="logo-bracket">{</span>madrajib lab<span class="logo-bracket">}</span>
+      </a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../archive.html">Archive</a>
+        <a href="../about.html">About</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">☽</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- ── Post Hero ────────────────────────────────────── -->
+    <div class="post-hero">
+      <div class="post-hero-tag">
+        <a href="../index.html">← Home</a>
+        &nbsp;/&nbsp; C++ &nbsp;/&nbsp; Memory
+      </div>
+      <h1>Smart Pointers Are Not Magic —<br>Here's What Actually Happens</h1>
+      <div class="post-hero-meta">
+        <span class="author">by Alex Mercer</span>
+        <span class="sep">·</span>
+        <span>May 12, 2025</span>
+        <span class="sep">·</span>
+        <span class="read-time">12 min read</span>
+      </div>
+      <div class="post-tags" style="margin-top:20px">
+        <span class="tag tag-cpp">C++</span>
+        <span class="tag tag-mem">Memory</span>
+        <span class="tag tag-perf">Performance</span>
+      </div>
+    </div>
+
+    <!-- ── Post Body ────────────────────────────────────── -->
+    <div class="post-content">
+
+      <p>
+        Every C++ tutorial tells you the same thing: <em>"use smart pointers, avoid raw pointers."</em>
+        And they're right. But most tutorials stop there, leaving you with a vague sense that 
+        <code>unique_ptr</code> is somehow safe while <code>T*</code> is dangerous — without explaining
+        the mechanism.
+      </p>
+
+      <p>
+        Today we're going deeper. We'll look at exactly what <code>std::unique_ptr</code> compiles 
+        to, when it's truly zero-cost, and where the abstraction leaks.
+      </p>
+
+      <h2>The Ownership Model</h2>
+
+      <p>
+        C++ memory ownership is a contract. When you <code>new</code> an object, you become responsible
+        for calling <code>delete</code>. Smart pointers enforce that contract through RAII —
+        Resource Acquisition Is Initialization.
+      </p>
+
+      <div class="tip">
+        RAII means: the resource is acquired in a constructor and released in the destructor.
+        Since destructors always run (even during stack unwinding from exceptions),
+        the resource is always freed.
+      </div>
+
+      <p>
+        Here's the classic raw-pointer problem:
+      </p>
+
+      <div class="snippet-card">
+        <div class="snippet-header">
+          <span>raw_ptr_problem.cpp</span>
+          <span class="lang">C++</span>
+        </div>
+        <div class="snippet-body">
+<pre><span class="typ">Widget</span><span class="op">*</span> w <span class="op">=</span> <span class="kw">new</span> <span class="typ">Widget</span><span class="op">();</span>
+<span class="fn">process</span><span class="op">(</span>w<span class="op">);</span>  <span class="cm">// throws an exception?</span>
+<span class="kw">delete</span> w<span class="op">;</span>    <span class="cm">// never reached — leak.</span></pre>
+        </div>
+      </div>
+
+      <p>
+        The fix isn't a try-catch around every allocation. The fix is making the resource's
+        lifetime tied to the scope:
+      </p>
+
+      <div class="snippet-card">
+        <div class="snippet-header">
+          <span>unique_ptr_fix.cpp</span>
+          <span class="lang">C++</span>
+        </div>
+        <div class="snippet-body">
+<pre><span class="kw">auto</span> w <span class="op">=</span> std<span class="op">::</span><span class="fn">make_unique</span><span class="op">&lt;</span><span class="typ">Widget</span><span class="op">&gt;();</span>
+<span class="fn">process</span><span class="op">(</span>w<span class="op">.</span><span class="fn">get</span><span class="op">());</span>
+<span class="cm">// w destroyed here — delete called automatically.</span>
+<span class="cm">// Even if process() throws.</span></pre>
+        </div>
+      </div>
+
+      <h2>What Does the Compiler Actually Generate?</h2>
+
+      <p>
+        Let's look at a minimal example and see what happens at the assembly level.
+        Take these two equivalent programs:
+      </p>
+
+      <div class="snippet-card">
+        <div class="snippet-header">
+          <span>comparison.cpp — compiled with g++ -O2 -std=c++20</span>
+          <span class="lang">C++</span>
+        </div>
+        <div class="snippet-body">
+<pre><span class="cm">// Version A: raw pointer</span>
+<span class="typ">int</span><span class="op">*</span> <span class="fn">raw_version</span><span class="op">() {</span>
+    <span class="typ">int</span><span class="op">*</span> p <span class="op">=</span> <span class="kw">new</span> <span class="typ">int</span><span class="op">(</span><span class="num">42</span><span class="op">);</span>
+    <span class="kw">return</span> p<span class="op">;</span>
+<span class="op">}</span>
+
+<span class="cm">// Version B: unique_ptr</span>
+std<span class="op">::</span><span class="typ">unique_ptr</span><span class="op">&lt;</span><span class="typ">int</span><span class="op">&gt;</span> <span class="fn">smart_version</span><span class="op">() {</span>
+    <span class="kw">return</span> std<span class="op">::</span><span class="fn">make_unique</span><span class="op">&lt;</span><span class="typ">int</span><span class="op">&gt;(</span><span class="num">42</span><span class="op">);</span>
+<span class="op">}</span></pre>
+        </div>
+      </div>
+
+      <p>
+        On x86-64 with <code>-O2</code>, both functions generate <strong>identical assembly</strong>.
+        The compiler sees through the wrapper completely. <code>unique_ptr</code> holds a single 
+        pointer — no overhead, no vtable, no size difference.
+      </p>
+
+      <blockquote>
+        "Zero-overhead abstractions: what you don't use, you don't pay for. And what you do use,
+        you couldn't hand-code any better." — Bjarne Stroustrup
+      </blockquote>
+
+      <h2>When unique_ptr Has Cost</h2>
+
+      <p>
+        The zero-cost claim breaks down in a few real scenarios:
+      </p>
+
+      <p>
+        <strong>Custom deleters.</strong> If you pass a non-empty deleter (like a lambda with captures),
+        <code>unique_ptr</code> must store it alongside the pointer. The type changes from 8 bytes to
+        potentially 24+ bytes. Use stateless function pointers or empty classes when possible.
+      </p>
+
+      <p>
+        <strong>shared_ptr is different.</strong> <code>shared_ptr</code> maintains a reference count
+        and a control block — two pointer-sized allocations, atomic increments, cache pressure.
+        Never use <code>shared_ptr</code> where <code>unique_ptr</code> will do.
+      </p>
+
+      <p>
+        <strong>Passing by value in hot paths.</strong> Passing a <code>unique_ptr</code> by value
+        involves a move, which nulls the source. Not expensive, but not free if you're doing it
+        a million times a second inside a tight loop.
+      </p>
+
+      <h2>The Rule of Five (and Zero)</h2>
+
+      <p>
+        If you define any of: destructor, copy constructor, copy assignment, move constructor, or
+        move assignment — you should define all five. Or, better, use the Rule of Zero: let the
+        compiler generate all of them by using smart pointers as members.
+      </p>
+
+      <div class="snippet-card">
+        <div class="snippet-header">
+          <span>rule_of_zero.cpp</span>
+          <span class="lang">C++</span>
+        </div>
+        <div class="snippet-body">
+<pre><span class="cm">// Rule of Zero — compiler handles everything</span>
+<span class="kw">class</span> <span class="typ">Document</span> <span class="op">{</span>
+<span class="kw">public</span><span class="op">:</span>
+    <span class="fn">Document</span><span class="op">(</span>std<span class="op">::</span><span class="typ">string</span> title<span class="op">,</span> <span class="typ">size_t</span> size<span class="op">)</span>
+        <span class="op">:</span> title_<span class="op">{</span>std<span class="op">::</span><span class="fn">move</span><span class="op">(</span>title<span class="op">)},</span>
+          buffer_<span class="op">{</span>std<span class="op">::</span><span class="fn">make_unique</span><span class="op">&lt;</span><span class="typ">char</span><span class="op">[]&gt;(</span>size<span class="op">)} {}</span>
+
+    <span class="cm">// No destructor, copy, or move needed.</span>
+    <span class="cm">// unique_ptr handles memory. string handles its own.</span>
+
+<span class="kw">private</span><span class="op">:</span>
+    std<span class="op">::</span><span class="typ">string</span>               title_<span class="op">;</span>
+    std<span class="op">::</span><span class="typ">unique_ptr</span><span class="op">&lt;</span><span class="typ">char</span><span class="op">[]&gt;</span>   buffer_<span class="op">;</span>
+<span class="op">};</span></pre>
+        </div>
+      </div>
+
+      <h2>Conclusion</h2>
+
+      <p>
+        Smart pointers aren't magic — they're a compiler-enforced contract. <code>unique_ptr</code>
+        is a zero-cost abstraction in the vast majority of cases, meaning you get all the safety
+        of automatic memory management with none of the runtime overhead.
+      </p>
+
+      <p>
+        The real skill is knowing <em>which</em> smart pointer to reach for: <code>unique_ptr</code>
+        for sole ownership, <code>shared_ptr</code> for shared ownership (sparingly), and raw 
+        <code>T*</code> or references for non-owning access.
+      </p>
+
+      <p>
+        Next time: we'll look at how the compiler handles <code>shared_ptr</code>'s control block
+        and why <code>make_shared</code> is almost always the right choice over 
+        <code>shared_ptr(new T)</code>.
+      </p>
+
+      <!-- ── Post Nav ──────────────────────────────────── -->
+      <div class="post-nav">
+        <a href="syscalls.html" class="post-nav-btn">
+          <div class="post-nav-label">← Previous</div>
+          <div class="post-nav-title">Talking to the Kernel: System Calls in C</div>
+        </a>
+        <a href="memory-layout.html" class="post-nav-btn">
+          <div class="post-nav-label">Next →</div>
+          <div class="post-nav-title">Cache Lines, Padding, and Struct Layout</div>
+        </a>
+      </div>
+
+    </div><!-- /post-content -->
+  </div><!-- /container -->
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span>{</span>madrajib lab<span>}</span> — dev blog
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/" target="_blank">GitHub</a>
+        <a href="../feed.xml">RSS</a>
+        <a href="../about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const html = document.documentElement;
+    const btn  = document.querySelector('.theme-toggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+    function applyTheme(t) {
+      html.setAttribute('data-theme', t);
+      btn.textContent = t === 'dark' ? '☀︎' : '☽';
+      localStorage.setItem('theme', t);
+    }
+    function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+  </script>
+</body>
+</html>

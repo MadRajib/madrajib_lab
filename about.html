@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — madrajib lab</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>⚙</text></svg>" />
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-bracket">{</span>madrajib lab<span class="logo-bracket">}</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="archive.html">Archive</a>
+        <a href="about.html">About</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">☽</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="about-section">
+      <h1>// <span class="accent">about</span></h1>
+      <div class="about-content">
+        <p>
+          <strong>madrajib lab</strong> is a technical blog about C and C++ programming. 
+          <!-- Not the "here's how to write a for loop" kind — the kind where we read assembly output, 
+          measure cache miss rates, and dig into why the compiler makes surprising choices. -->
+        </p>
+        <!-- <p>
+          I'm a systems programmer who spends too much time on Compiler Explorer and not enough 
+          time sleeping. I work on performance-critical software and write about what I learn along 
+          the way: memory models, undefined behavior, modern C++ idioms, and the occasional foray 
+          into kernel internals.
+        </p> -->
+        <!-- <p>
+          All code examples are compiled and tested. If something is wrong, open an issue on GitHub.
+        </p> -->
+
+        <div class="terminal-banner" style="margin-top:40px">
+          <div class="term-dots">
+            <div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div>
+          </div>
+          <div class="term-line"><span class="prompt">$</span> <span class="cmd">whoami</span></div>
+          <div class="term-line"><span class="output">madrajib lab</span></div>
+          <div class="term-line"><span class="prompt">$</span> <span class="cmd">cat interests.txt</span></div>
+          <div class="term-line"><span class="output">systems programming, compilers, performance, embedded C, Linux internals</span></div>
+          <div class="term-line"><span class="prompt">$</span> <span class="cmd">uname -a</span></div>
+          <div class="term-line"><span class="output">Linux 6.8.0-generic x86_64 GNU/Linux</span> <span class="cursor"></span></div>
+        </div>
+
+        <!-- <div class="skills-grid" style="margin-top:48px">
+          <div class="skill-item">
+            <div class="skill-name">C (C11/C17)</div>
+            <div class="skill-level">████████░░ Expert</div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-name">C++ (up to C++23)</div>
+            <div class="skill-level">████████░░ Expert</div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-name">x86-64 Assembly</div>
+            <div class="skill-level">██████░░░░ Proficient</div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-name">Linux Internals</div>
+            <div class="skill-level">███████░░░ Advanced</div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-name">Embedded C</div>
+            <div class="skill-level">██████░░░░ Proficient</div>
+          </div>
+          <div class="skill-item">
+            <div class="skill-name">CMake / Build</div>
+            <div class="skill-level">█████░░░░░ Intermediate</div>
+          </div>
+        </div> -->
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo"><span>{</span>madrajib lab<span>}</span> — written in the margins of memory</div>
+      <div class="footer-links">
+        <a href="https://github.com/" target="_blank">GitHub</a>
+        <a href="feed.xml">RSS</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const html = document.documentElement;
+    const btn  = document.querySelector('.theme-toggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+    function applyTheme(t) {
+      html.setAttribute('data-theme', t);
+      btn.textContent = t === 'dark' ? '☀︎' : '☽';
+      localStorage.setItem('theme', t);
+    }
+    function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+  </script>
+</body>
+</html>

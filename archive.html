@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Archive — bits & bytes</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>⚙</text></svg>" />
+  <style>
+    .archive-hero { padding: 60px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+    .archive-hero h1 { font-size: 2rem; margin-bottom: 12px; }
+    .archive-hero p { color: var(--text-muted); font-style: italic; }
+    .year-group { margin-bottom: 48px; }
+    .year-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .year-label::before { content: '#'; color: var(--amber); }
+    .archive-list { display: grid; gap: 2px; }
+    .archive-item {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      align-items: center;
+      gap: 20px;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      transition: background var(--transition);
+      color: inherit;
+      text-decoration: none;
+    }
+    .archive-item:hover { background: var(--bg-alt); }
+    .archive-item:hover .archive-title { color: var(--amber); }
+    .archive-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+    .archive-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+      transition: color var(--transition);
+    }
+    .archive-tags { display: flex; gap: 6px; }
+    @media (max-width: 580px) {
+      .archive-item { grid-template-columns: 1fr; gap: 6px; }
+      .archive-tags { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-bracket">{</span>madrajib lab<span class="logo-bracket">}</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="archive.html">Archive</a>
+        <a href="about.html">About</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">☽</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="archive-hero">
+      <h1>// <span style="color:var(--amber)">archive</span></h1>
+      <!-- <p>All posts, chronologically. 24 articles and counting.</p> -->
+    </div>
+
+    <!-- <div class="year-group">
+      <div class="year-label">2025</div>
+      <div class="archive-list">
+        <a href="posts/smart-pointers.html" class="archive-item">
+          <span class="archive-date">May 12</span>
+          <span class="archive-title">Smart Pointers Are Not Magic — Here's What Actually Happens</span>
+          <div class="archive-tags"><span class="tag tag-cpp">C++</span><span class="tag tag-mem">Memory</span></div>
+        </a>
+        <a href="posts/memory-layout.html" class="archive-item">
+          <span class="archive-date">Apr 28</span>
+          <span class="archive-title">Cache Lines, Padding, and the Struct Layout That Doubled My Performance</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-perf">Perf</span></div>
+        </a>
+        <a href="posts/undefined-behavior.html" class="archive-item">
+          <span class="archive-date">Apr 14</span>
+          <span class="archive-title">Undefined Behavior Is Not a Bug — It's a Contract You're Breaking</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-cpp">C++</span></div>
+        </a>
+        <a href="posts/templates.html" class="archive-item">
+          <span class="archive-date">Mar 30</span>
+          <span class="archive-title">Template Metaprogramming in 2025: When to Use It, When to Run</span>
+          <div class="archive-tags"><span class="tag tag-cpp">C++</span><span class="tag tag-algo">Algorithms</span></div>
+        </a>
+        <a href="posts/syscalls.html" class="archive-item">
+          <span class="archive-date">Mar 15</span>
+          <span class="archive-title">Talking to the Kernel: A Practical Guide to System Calls in C</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-sys">Systems</span></div>
+        </a>
+        <a href="#" class="archive-item">
+          <span class="archive-date">Feb 28</span>
+          <span class="archive-title">The Hidden Cost of std::function and How to Avoid It</span>
+          <div class="archive-tags"><span class="tag tag-cpp">C++</span><span class="tag tag-perf">Perf</span></div>
+        </a>
+        <a href="#" class="archive-item">
+          <span class="archive-date">Feb 10</span>
+          <span class="archive-title">Writing a Memory Allocator from Scratch</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-mem">Memory</span></div>
+        </a>
+        <a href="#" class="archive-item">
+          <span class="archive-date">Jan 22</span>
+          <span class="archive-title">constexpr All the Things: Compile-Time Computation in C++20</span>
+          <div class="archive-tags"><span class="tag tag-cpp">C++</span></div>
+        </a>
+      </div>
+    </div> -->
+
+    <!-- <div class="year-group">
+      <div class="year-label">2024</div>
+      <div class="archive-list">
+        <a href="#" class="archive-item">
+          <span class="archive-date">Dec 18</span>
+          <span class="archive-title">Reading /proc/self/maps: Understanding Your Process's Memory Layout</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-sys">Systems</span></div>
+        </a>
+        <a href="#" class="archive-item">
+          <span class="archive-date">Nov 30</span>
+          <span class="archive-title">Coroutines in C++20: A Ground-Up Explanation</span>
+          <div class="archive-tags"><span class="tag tag-cpp">C++</span></div>
+        </a>
+        <a href="#" class="archive-item">
+          <span class="archive-date">Oct 14</span>
+          <span class="archive-title">SIMD Intrinsics: Hand-Vectorizing a Parser for 4× Speedup</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-perf">Perf</span></div>
+        </a>
+        <a href="#" class="archive-item">
+          <span class="archive-date">Sep 2</span>
+          <span class="archive-title">Setjmp, Longjmp, and the Stack Frames Nobody Talks About</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-sys">Systems</span></div>
+        </a>
+        <a href="#" class="archive-item">
+          <span class="archive-date">Jul 19</span>
+          <span class="archive-title">Zero-Copy Networking with io_uring</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-sys">Systems</span><span class="tag tag-perf">Perf</span></div>
+        </a>
+        <a href="#" class="archive-item">
+          <span class="archive-date">Jun 5</span>
+          <span class="archive-title">Bit Manipulation Tricks the Compiler Already Knows</span>
+          <div class="archive-tags"><span class="tag tag-c">C</span><span class="tag tag-algo">Algorithms</span></div>
+        </a>
+      </div>
+    </div> -->
+
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo"><span>{</span>madrajib lab<span>}</span> — dev blog</div>
+      <div class="footer-links">
+        <a href="https://github.com/" target="_blank">GitHub</a>
+        <a href="feed.xml">RSS</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const html = document.documentElement;
+    const btn  = document.querySelector('.theme-toggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+    function applyTheme(t) {
+      html.setAttribute('data-theme', t);
+      btn.textContent = t === 'dark' ? '☀︎' : '☽';
+      localStorage.setItem('theme', t);
+    }
+    function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+  </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>madrajib lab — A C/C++ Dev Blog</title>
+  <meta name="description" content="Dev Blog" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>⚙</text></svg>" />
+</head>
+<body>
+
+  <!-- ── Nav ─────────────────────────────────────────────── -->
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-bracket">{</span>madrajib lab<span class="logo-bracket">}</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="archive.html">Archive</a>
+        <a href="about.html">About</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">☽</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Hero ────────────────────────────────────────────── -->
+  <div class="container">
+    <section class="hero">
+      <div class="hero-tag">C / C++ Dev Blog</div>
+      <h1>Writing code at the<br><span class="accent">speed of metal.</span></h1>
+      <!-- <p class="hero-desc">
+        Deep dives into memory management, undefined behavior, performance tuning,
+        and the dark arts of systems programming.
+      </p> -->
+      <!-- <div class="hero-stats">
+        <div class="stat"><span>24</span>Articles</div>
+        <div class="stat"><span>C++23</span>Coverage</div>
+        <div class="stat"><span>∞</span>Segfaults</div>
+      </div> -->
+    </section>
+
+    <!-- ── Terminal Banner ──────────────────────────────── -->
+    <div class="terminal-banner">
+      <div class="term-dots">
+        <div class="term-dot"></div>
+        <div class="term-dot"></div>
+        <div class="term-dot"></div>
+      </div>
+      <div class="term-line"><span class="prompt">$</span> <span class="cmd">gcc -O2 -Wall -Wextra main.c -o program</span></div>
+      <div class="term-line"><span class="comment">// No warnings. No errors. Ship it.</span></div>
+      <div class="term-line"><span class="prompt">$</span> <span class="cmd">./program</span></div>
+      <div class="term-line"><span class="output">Hello, low-level world.</span> <span class="cursor"></span></div>
+    </div>
+
+    <!-- ── Latest Posts ─────────────────────────────────── -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Latest Posts</div>
+        <a href="archive.html" class="see-all">view all →</a>
+      </div>
+
+      <div class="posts-grid">
+
+        <!-- Featured Post -->
+        <a href="posts/smart-pointers.html" class="post-card">
+          <div>
+            <div class="post-tags">
+              <span class="tag tag-cpp">C++</span>
+              <span class="tag tag-mem">Memory</span>
+            </div>
+            <h2 class="post-title">Smart Pointers Are Not Magic — Here's What Actually Happens</h2>
+            <p class="post-excerpt">
+              Everyone says "just use <code>unique_ptr</code>" but few understand the zero-cost abstraction 
+              underneath. We disassemble the generated code and stare at what the compiler actually produces.
+            </p>
+            <div class="post-meta">
+              <span>May 12, 2025</span>
+              <span class="dot">·</span>
+              <span class="read-time">12 min read</span>
+            </div>
+          </div>
+          <span class="post-arrow">→</span>
+        </a>
+
+        <!-- Post 2 -->
+        <!-- <a href="posts/memory-layout.html" class="post-card">
+          <div>
+            <div class="post-tags">
+              <span class="tag tag-c">C</span>
+              <span class="tag tag-perf">Performance</span>
+            </div>
+            <h2 class="post-title">Cache Lines, Padding, and the Struct Layout That Doubled My Performance</h2>
+            <p class="post-excerpt">
+              A 2× speedup hidden in 8 bytes of reordering. How struct field order can make or break your hot path.
+            </p>
+            <div class="post-meta">
+              <span>Apr 28, 2025</span>
+              <span class="dot">·</span>
+              <span class="read-time">9 min read</span>
+            </div>
+          </div>
+          <span class="post-arrow">→</span>
+        </a> -->
+
+        <!-- Post 3 -->
+        <!-- <a href="posts/undefined-behavior.html" class="post-card">
+          <div>
+            <div class="post-tags">
+              <span class="tag tag-c">C</span>
+              <span class="tag tag-cpp">C++</span>
+            </div>
+            <h2 class="post-title">Undefined Behavior Is Not a Bug — It's a Contract You're Breaking</h2>
+            <p class="post-excerpt">
+              The compiler assumes your code is correct. When it isn't, all bets are off. Real examples of
+              UB that silently corrupt data in optimized builds.
+            </p>
+            <div class="post-meta">
+              <span>Apr 14, 2025</span>
+              <span class="dot">·</span>
+              <span class="read-time">15 min read</span>
+            </div>
+          </div>
+          <span class="post-arrow">→</span>
+        </a> -->
+
+        <!-- Post 4 -->
+        <!-- <a href="posts/templates.html" class="post-card">
+          <div>
+            <div class="post-tags">
+              <span class="tag tag-cpp">C++</span>
+              <span class="tag tag-algo">Algorithms</span>
+            </div>
+            <h2 class="post-title">Template Metaprogramming in 2025: When to Use It, When to Run</h2>
+            <p class="post-excerpt">
+              Concepts, constraints, and compile-time computation. The modern C++ way to write generic 
+              code without sacrificing your sanity.
+            </p>
+            <div class="post-meta">
+              <span>Mar 30, 2025</span>
+              <span class="dot">·</span>
+              <span class="read-time">11 min read</span>
+            </div>
+          </div>
+          <span class="post-arrow">→</span>
+        </a> -->
+
+        <!-- Post 5 -->
+        <!-- <a href="posts/syscalls.html" class="post-card">
+          <div>
+            <div class="post-tags">
+              <span class="tag tag-c">C</span>
+              <span class="tag tag-sys">Systems</span>
+            </div>
+            <h2 class="post-title">Talking to the Kernel: A Practical Guide to System Calls in C</h2>
+            <p class="post-excerpt">
+              Skip the glibc wrappers. This is how programs actually talk to Linux — from <code>write()</code>
+              to <code>mmap()</code>, raw and unfiltered.
+            </p>
+            <div class="post-meta">
+              <span>Mar 15, 2025</span>
+              <span class="dot">·</span>
+              <span class="read-time">13 min read</span>
+            </div>
+          </div>
+          <span class="post-arrow">→</span>
+        </a> -->
+
+      </div>
+    </section>
+  </div><!-- /container -->
+
+  <!-- ── Footer ───────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span>{</span>madrajib lab<span>}</span> — dev blog
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/MadRajib" target="_blank">GitHub</a>
+        <a href="feed.xml">RSS</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Theme ──────────────────────────────────────────────
+    const html = document.documentElement;
+    const btn  = document.querySelector('.theme-toggle');
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      btn.textContent = theme === 'dark' ? '☀︎' : '☽';
+      localStorage.setItem('theme', theme);
+    }
+
+    function toggleTheme() {
+      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+  </script>
+</body>
+</html>
