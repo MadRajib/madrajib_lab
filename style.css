@@ -452,23 +452,58 @@ nav {
   border: 1px solid rgba(240,136,62,0.2);
 }
 .snippet-body {
-  padding: 20px 24px;
+  padding: 0;
   overflow-x: auto;
 }
 .snippet-body pre {
+  margin: 0;
+}
+.snippet-body pre code.hljs {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.82rem;
   line-height: 1.8;
+  /* padding: -20px -20px; */
+  background: transparent;
   color: var(--text);
   white-space: pre;
+  display: block;
 }
-.kw  { color: var(--purple); }
-.typ { color: var(--blue); }
-.fn  { color: var(--green); }
-.str { color: var(--amber); }
-.cm  { color: var(--text-dim); font-style: italic; }
-.num { color: var(--red); }
-.op  { color: var(--text-muted); }
+
+/* ─── Highlight.js Token Colors (mapped to blog palette) ── */
+.hljs-comment,
+.hljs-quote          { color: var(--text-dim); font-style: italic; }
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-literal        { color: var(--purple); }
+
+.hljs-type,
+.hljs-class          { color: var(--blue); }
+
+.hljs-title,
+.hljs-title.function_{ color: var(--green); }
+
+.hljs-string,
+.hljs-template-string{ color: var(--amber); }
+
+.hljs-number,
+.hljs-meta           { color: var(--red); }
+
+.hljs-operator,
+.hljs-punctuation    { color: var(--text-muted); }
+
+.hljs-variable,
+.hljs-params         { color: var(--text); }
+
+.hljs-attr,
+.hljs-attribute      { color: var(--blue); }
+
+.hljs-symbol,
+.hljs-bullet         { color: var(--amber); }
+
+.hljs-emphasis       { font-style: italic; }
+.hljs-strong         { font-weight: bold; }
 
 /* ─── Footer ─────────────────────────────────────────────── */
 footer {

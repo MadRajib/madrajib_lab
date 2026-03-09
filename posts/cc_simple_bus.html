@@ -18,7 +18,7 @@
   <nav>
     <div class="nav-inner">
       <a href="../index.html" class="nav-logo">
-        <span class="logo-bracket">{</span>bits &amp; bytes<span class="logo-bracket">}</span>
+        <span class="logo-bracket">{</span>madrajib lab<span class="logo-bracket">}</span>
       </a>
       <div class="nav-links">
         <a href="../index.html">Home</a>
@@ -31,24 +31,24 @@
 
   <div class="container">
 
-    <!-- ── Post Hero ────────────────────────────────────── -->
+    <!-- ── Post ────────────────────────────────────── -->
     <div class="post-hero">
       <div class="post-hero-tag">
         <a href="../index.html">← Home</a>
-        &nbsp;/&nbsp; C++ &nbsp;/&nbsp; Memory
+        &nbsp;/&nbsp; C &nbsp;/&nbsp; event bus
       </div>
-      <h1>Smart Pointers Are Not Magic —<br>Here's What Actually Happens</h1>
+      <h1>Simple Event Bus in CC Printer —<br>Here's how its working</h1>
       <div class="post-hero-meta">
-        <span class="author">by Alex Mercer</span>
+        <span class="author">by MadRajib Lab</span>
         <span class="sep">·</span>
-        <span>May 12, 2025</span>
+        <span>March 09, 2026</span>
         <span class="sep">·</span>
-        <span class="read-time">12 min read</span>
+        <!-- <span class="read-time">12 min read</span> -->
       </div>
       <div class="post-tags" style="margin-top:20px">
-        <span class="tag tag-cpp">C++</span>
-        <span class="tag tag-mem">Memory</span>
-        <span class="tag tag-perf">Performance</span>
+        <span class="tag tag-cpp">C</span>
+        <span class="tag tag-mem">Event Bus</span>
+        <!-- <span class="tag tag-perf">Performance</span> -->
       </div>
     </div>
 
@@ -56,23 +56,56 @@
     <div class="post-content">
 
       <p>
-        Every C++ tutorial tells you the same thing: <em>"use smart pointers, avoid raw pointers."</em>
-        And they're right. But most tutorials stop there, leaving you with a vague sense that 
-        <code>unique_ptr</code> is somehow safe while <code>T*</code> is dangerous — without explaining
-        the mechanism.
+        Recently I bought a <a href="">Elegoo Centauri Carbon</a> 3D printer. Elegoo have chosen a custom
+        <a href="">firmware</a> for the printer rather than using klipper and fluidd. And because I like to
+        understand how it works, I decided to dig into the firmware to understand its working.
+        So I jumped into the source code and started wondering around.
+      </p>
+    
+      <p>
+        After tracing the call stack visually my attention landed in a module same <code>simple_bus.c</code>.
+        Digging around a bit I got to know that it is some sort of an event bus for handling service request and msg packets.
       </p>
 
       <p>
-        Today we're going deeper. We'll look at exactly what <code>std::unique_ptr</code> compiles 
-        to, when it's truly zero-cost, and where the abstraction leaks.
+        In this post I will try to explain what I have learned so far about the simple bus and what improvement
+        I decided to add to it.
       </p>
 
-      <h2>The Ownership Model</h2>
+      <h2>The Data Structures</h2>
 
       <p>
-        C++ memory ownership is a contract. When you <code>new</code> an object, you become responsible
-        for calling <code>delete</code>. Smart pointers enforce that contract through RAII —
-        Resource Acquisition Is Initialization.
+        Here there are couple of structures used to implement the bus. The very first structure is <code>simple_bus_t</code>
+      </p>
+
+      <div class="snippet-card">
+        <!-- <div class="snippet-header">
+          <span>raw_ptr_problem.cpp</span>
+          <span class="lang">C++</span>
+        </div> -->
+        <div class="snippet-body">
+          <pre><code class="language-cpp">typedef struct simple_bus
+{   
+    /* suscriber list */
+    list_head_t subscribe_name_list;
+
+    /* async msg list */
+    list_head_t async_msg_list;
+    pthread_mutex_t async_msg_list_lock;
+    pthread_cond_t async_msg_list_cond;
+
+    /* services list */
+    list_head_t service_list;
+    pthread_mutex_t service_list_lock;
+
+    pthread_mutex_t lock;
+    pthread_t pid;
+} simple_bus_t;</code></pre>
+        </div>
+      </div>
+
+      <p>
+        Here's the classic raw-pointer problem:
       </p>
 
       <div class="tip">
@@ -91,9 +124,9 @@
           <span class="lang">C++</span>
         </div>
         <div class="snippet-body">
-          <pre><code class="language-cpp">Widget* w = new Widget();
-process(w);  // throws an exception?
-delete w;    // never reached — leak.</code></pre>
+<pre><span class="typ">Widget</span><span class="op">*</span> w <span class="op">=</span> <span class="kw">new</span> <span class="typ">Widget</span><span class="op">();</span>
+<span class="fn">process</span><span class="op">(</span>w<span class="op">);</span>  <span class="cm">// throws an exception?</span>
+<span class="kw">delete</span> w<span class="op">;</span>    <span class="cm">// never reached — leak.</span></pre>
         </div>
       </div>
 
@@ -108,10 +141,10 @@ delete w;    // never reached — leak.</code></pre>
           <span class="lang">C++</span>
         </div>
         <div class="snippet-body">
-          <pre><code class="language-cpp">auto w = std::make_unique&lt;Widget&gt;();
-process(w.get());
-// w destroyed here — delete called automatically.
-// Even if process() throws.</code></pre>
+<pre><span class="kw">auto</span> w <span class="op">=</span> std<span class="op">::</span><span class="fn">make_unique</span><span class="op">&lt;</span><span class="typ">Widget</span><span class="op">&gt;();</span>
+<span class="fn">process</span><span class="op">(</span>w<span class="op">.</span><span class="fn">get</span><span class="op">());</span>
+<span class="cm">// w destroyed here — delete called automatically.</span>
+<span class="cm">// Even if process() throws.</span></pre>
         </div>
       </div>
 
@@ -128,16 +161,16 @@ process(w.get());
           <span class="lang">C++</span>
         </div>
         <div class="snippet-body">
-          <pre><code class="language-cpp">// Version A: raw pointer
-int* raw_version() {
-    int* p = new int(42);
-    return p;
-}
+<pre><span class="cm">// Version A: raw pointer</span>
+<span class="typ">int</span><span class="op">*</span> <span class="fn">raw_version</span><span class="op">() {</span>
+    <span class="typ">int</span><span class="op">*</span> p <span class="op">=</span> <span class="kw">new</span> <span class="typ">int</span><span class="op">(</span><span class="num">42</span><span class="op">);</span>
+    <span class="kw">return</span> p<span class="op">;</span>
+<span class="op">}</span>
 
-// Version B: unique_ptr
-std::unique_ptr&lt;int&gt; smart_version() {
-    return std::make_unique&lt;int&gt;(42);
-}</code></pre>
+<span class="cm">// Version B: unique_ptr</span>
+std<span class="op">::</span><span class="typ">unique_ptr</span><span class="op">&lt;</span><span class="typ">int</span><span class="op">&gt;</span> <span class="fn">smart_version</span><span class="op">() {</span>
+    <span class="kw">return</span> std<span class="op">::</span><span class="fn">make_unique</span><span class="op">&lt;</span><span class="typ">int</span><span class="op">&gt;(</span><span class="num">42</span><span class="op">);</span>
+<span class="op">}</span></pre>
         </div>
       </div>
 
@@ -190,20 +223,20 @@ std::unique_ptr&lt;int&gt; smart_version() {
           <span class="lang">C++</span>
         </div>
         <div class="snippet-body">
-          <pre><code class="language-cpp">// Rule of Zero — compiler handles everything
-class Document {
-public:
-    Document(std::string title, size_t size)
-        : title_{std::move(title)},
-          buffer_{std::make_unique&lt;char[]&gt;(size)} {}
+<pre><span class="cm">// Rule of Zero — compiler handles everything</span>
+<span class="kw">class</span> <span class="typ">Document</span> <span class="op">{</span>
+<span class="kw">public</span><span class="op">:</span>
+    <span class="fn">Document</span><span class="op">(</span>std<span class="op">::</span><span class="typ">string</span> title<span class="op">,</span> <span class="typ">size_t</span> size<span class="op">)</span>
+        <span class="op">:</span> title_<span class="op">{</span>std<span class="op">::</span><span class="fn">move</span><span class="op">(</span>title<span class="op">)},</span>
+          buffer_<span class="op">{</span>std<span class="op">::</span><span class="fn">make_unique</span><span class="op">&lt;</span><span class="typ">char</span><span class="op">[]&gt;(</span>size<span class="op">)} {}</span>
 
-    // No destructor, copy, or move needed.
-    // unique_ptr handles memory. string handles its own.
+    <span class="cm">// No destructor, copy, or move needed.</span>
+    <span class="cm">// unique_ptr handles memory. string handles its own.</span>
 
-private:
-    std::string              title_;
-    std::unique_ptr&lt;char[]&gt;  buffer_;
-};</code></pre>
+<span class="kw">private</span><span class="op">:</span>
+    std<span class="op">::</span><span class="typ">string</span>               title_<span class="op">;</span>
+    std<span class="op">::</span><span class="typ">unique_ptr</span><span class="op">&lt;</span><span class="typ">char</span><span class="op">[]&gt;</span>   buffer_<span class="op">;</span>
+<span class="op">};</span></pre>
         </div>
       </div>
 
@@ -245,7 +278,7 @@ private:
   <footer>
     <div class="footer-inner">
       <div class="footer-logo">
-        <span>{</span>bits &amp; bytes<span>}</span> — written in the margins of memory
+        <span>{</span>madrajib lab<span>}</span> — dev blog
       </div>
       <div class="footer-links">
         <a href="https://github.com/" target="_blank">GitHub</a>
