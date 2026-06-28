@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cc simple bus</title>
+  <meta name="description" content="cc simple bus" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>⚙</text></svg>" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/material-darker.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/c.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+</head>
+<body>
+
+  <!-- ── Nav ─────────────────────────────────────────────── -->
+  <nav>
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <span class="logo-bracket">{</span>madrajib lab<span class="logo-bracket">}</span>
+      </a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../archive.html">Archive</a>
+        <a href="../about.html">About</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">☽</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- ── Post ────────────────────────────────────── -->
+    <div class="post-hero">
+      <div class="post-hero-tag">
+        <a href="../index.html">← Home</a>
+        &nbsp;/&nbsp; C &nbsp;/&nbsp; Zephyr
+      </div>
+      <h1>My very first contribution to Zephyr RTOS</h1>
+      <div class="post-hero-meta">
+        <span class="author">by MadRajib Lab</span>
+        <span class="sep">·</span>
+        <span>March 09, 2026</span>
+        <span class="sep">·</span>
+        <!-- <span class="read-time">12 min read</span> -->
+      </div>
+      <div class="post-tags" style="margin-top:20px">
+        <span class="tag tag-cpp">C</span>
+        <span class="tag tag-mem">Zephyr</span>
+        <!-- <span class="tag tag-perf">Performance</span> -->
+      </div>
+    </div>
+
+    <!-- ── Post Body ────────────────────────────────────── -->
+    <div class="post-content">
+
+      <p>
+        <a href="https://github.com/zephyrproject-rtos/zephyr/pull/103257">drivers: wifi: esp32: retrieve scan results iteratively</a>
+        was my very first contribution to Zephyr project. In this post I want talk about the how I ended up submitting a PR to ESP32 wifi driver
+        in Zephyr.
+      </p>
+
+      <h2>What all started it</h2>
+    
+      <p>
+        It all started last year when I was looking for a job change in a different city. A company A's HR, which
+        has one of it offices located in the city I was looking for, reached out to me for an opportunity in city A and B.
+        I was not at all interested in city A but was looking for city B. 
+      </p>
+      
+      <p>
+        Unfortunately I was rejected for the interview for the city B since I didn't have any WLAN domain expertise ( there was only wifi department present in city B ).
+        Later multiple HRs from the same company called for city A but when I told them that I was looking only for city B, my resume was not selected.
+      </p>
+
+      <p>
+        I already had an job offer in the current city hence I was pushing forward for the city B.
+      </p>
+
+      <p>
+       After my multiple attempt with the HRs failed I wanted to study about WLAN.
+      </p>
+
+      <h2>Exploration</h2>
+
+      <p>
+        I jumped directly to linux kernel WLAN driver code to understand how it worked. After spending 1 hr I just gave up!.
+      </p>
+
+      <p>
+        I had some experience with the kernel driver model but looking into the code I had no clue on what was going on, it felt so confusing. Then I realized that
+        I need to know the theory on how the wlan worked before diving into the code. I searched for documents related to this topics but I quickly lost interest,
+        since it was getting so complicated and confusing. 
+      </p>
+
+      <p>
+        I suddenly realized that there is Zephyr RTOS, which should have WLAN/Wifi driver and since it for micro-controllers the wifi stack should be small and a bit easier to understand.
+        This was just a speculation I had.  
+      </p>
+
+      <h2>Zephyr Journey</h2>
+      
+      <p>
+        The Zephyr code structure looks quite similar to linux kernel so navigating was not that hard, and I quickly ended up in drivers/wifi folder.
+        And to my surprise I saw eps32 and espat folders. Till that point I didn't know Zephyr supported espressif chips. <br><br>
+      
+        I then quickly jumped to the esp32 driver code. Going over the code I saw some familiar esp32 apis (I had a little bit of experience working with esp32 IDF) <br>
+        api_1, api_2.
+      </p>
+
+      <p>
+        I felt little confident that I might be able to understand this driver.
+      </p>
+
+      <div class="snippet-card">
+        <!-- <div class="snippet-header">
+          <span>raw_ptr_problem.cpp</span>
+          <span class="lang">C++</span>
+        </div> -->
+        <div class="snippet-body">
+          <pre><code class="language-cpp">typedef struct simple_bus
+{   
+    /* suscriber list */
+    list_head_t subscribe_name_list;
+
+    /* async msg list */
+    list_head_t async_msg_list;
+    pthread_mutex_t async_msg_list_lock;
+    pthread_cond_t async_msg_list_cond;
+
+    /* services list */
+    list_head_t service_list;
+    pthread_mutex_t service_list_lock;
+
+    pthread_mutex_t lock;
+    pthread_t pid;
+} simple_bus_t;</code></pre>
+        </div>
+      </div>
+
+      -- TODO --
+
+     
+      <!-- ── Post Nav ──────────────────────────────────── -->
+      <!-- <div class="post-nav">
+        <a href="syscalls.html" class="post-nav-btn">
+          <div class="post-nav-label">← Previous</div>
+          <div class="post-nav-title">Talking to the Kernel: System Calls in C</div>
+        </a>
+        <a href="memory-layout.html" class="post-nav-btn">
+          <div class="post-nav-label">Next →</div>
+          <div class="post-nav-title">Cache Lines, Padding, and Struct Layout</div>
+        </a>
+      </div> -->
+
+    </div><!-- /post-content -->
+  </div><!-- /container -->
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span>{</span>madrajib lab<span>}</span> — dev blog
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/MadRajib" target="_blank">GitHub</a>
+        <a href="../feed.xml">RSS</a>
+        <a href="../about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    hljs.highlightAll();
+    const html = document.documentElement;
+    const btn  = document.querySelector('.theme-toggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+    function applyTheme(t) {
+      html.setAttribute('data-theme', t);
+      btn.textContent = t === 'dark' ? '☀︎' : '☽';
+      localStorage.setItem('theme', t);
+    }
+    function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+  </script>
+</body>
+</html>
